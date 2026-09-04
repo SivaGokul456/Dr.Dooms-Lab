@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Si-gul · AI-native drug discovery, built for assets</title>
+<meta name="description" content="Si-gul combines target intelligence, computational chemistry and experimental validation to build de-risked, licensable drug assets for pharma partners.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230B1437'/><circle cx='16' cy='16' r='6' fill='none' stroke='%23FFFFFF' stroke-width='2.4'/><circle cx='16' cy='16' r='1.8' fill='%23FFFFFF'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+  /* ------------------------------------------------------------ tokens -- */
+  :root {
+    --sc-canvas:      #FBFCFE;
+    --sc-surface:     #F1F5FB;
+    --sc-ink:         #0B1437;
+    --sc-ink-soft:    #4F5B7C;
+    --sc-accent:      #1B58C2;
+    --sc-accent-ink:  #FFFFFF;
+    --sc-font-display: "Instrument Sans", system-ui, sans-serif;
+    --sc-font-text:    "Manrope", system-ui, sans-serif;
+    --sc-font-mono:    "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+
+    --sc-shadow-color: 222 40% 28%;
+    --sc-e1: 0 1px 2px hsl(var(--sc-shadow-color) / 0.08), 0 2px 6px -1px hsl(var(--sc-shadow-color) / 0.06);
+    --sc-e2: 0 2px 4px hsl(var(--sc-shadow-color) / 0.07), 0 10px 22px -6px hsl(var(--sc-shadow-color) / 0.12);
+    --sc-e3: 0 4px 8px hsl(var(--sc-shadow-color) / 0.06), 0 22px 48px -12px hsl(var(--sc-shadow-color) / 0.16);
+    --sc-edge: inset 0 1px 0 rgba(255,255,255,0.85);
+
+    --tint:      #EEF3FB;   /* the pale-blue plate ground, painted per section */
+    --tint-deep: #E3EBF7;
+    --pale-line: color-mix(in oklab, var(--sc-ink) 9%, transparent);
+    --nav-h: 4rem;
+    --sc-section: clamp(4rem, 7.5vw, 8.5rem);
+  }
+  .sc-grain { opacity: 0.028; }
+  .sc-display { font-weight: 500; }
+  .sc-display--xl { font-size: clamp(2.6rem, 1.6rem + 4.4vw, 5.6rem); letter-spacing: -0.03em; }
+  .sc-display--lg { font-size: clamp(2.1rem, 1.4rem + 2.8vw, 3.9rem); letter-spacing: -0.028em; }
+  .sc-display--md { font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.6rem); }
+  .sc-body { font-size: var(--sc-t-base); }
+  .sc-lede { font-weight: 400; }
+  .sc-label { font-weight: 500; color: var(--sc-ink-soft); }
+  p { margin: 0; }
+  strong { font-weight: 600; color: var(--sc-ink); }
+
+  /* ------------------------------------------------------- buttons ------ */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.6em;
+    min-height: 3rem; padding: 0 1.4rem;
+    font-family: var(--sc-font-text); font-weight: 600; font-size: var(--sc-t-sm);
+    letter-spacing: 0.005em; text-decoration: none; white-space: nowrap;
+    border-radius: 4px; border: 1px solid transparent;
+    transition: background-color 140ms var(--sc-ease-out), border-color 140ms var(--sc-ease-out),
+                color 140ms var(--sc-ease-out), transform 120ms var(--sc-ease-out), box-shadow 140ms var(--sc-ease-out);
+  }
+  .btn:active { transform: translateY(1px); }
+  .btn--primary { background: var(--sc-accent); color: var(--sc-accent-ink); box-shadow: var(--sc-e1); }
+  .btn--primary:hover { background: #164BA8; box-shadow: var(--sc-e2); }
+  .btn--ghost { background: transparent; color: var(--sc-ink); border-color: var(--sc-hairline-strong); }
+  .btn--ghost:hover { border-color: var(--sc-ink); }
+  .btn--sm { min-height: 2.5rem; padding: 0 1.05rem; }
+
+  /* ------------------------------------------------------- the index ---- */
+  .index {
+    position: fixed; top: 2px; left: 0; right: 0; height: var(--nav-h);
+    z-index: var(--sc-z-chrome);
+    background: color-mix(in oklab, var(--sc-canvas) 94%, transparent);
+    border-bottom: 1px solid var(--pale-line);
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    padding-inline: var(--sc-gutter);
+  }
+  .index__mark {
+    display: inline-flex; align-items: center; gap: 0.7rem;
+    font-family: var(--sc-font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: -0.02em;
+    color: var(--sc-ink); text-decoration: none;
+  }
+  .index__mark svg { width: 1.35rem; height: 1.35rem; }
+  .index__readout {
+    margin-left: 1.25rem; padding-left: 1.25rem; border-left: 1px solid var(--pale-line);
+    font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--sc-ink-soft); white-space: nowrap;
+  }
+  .index__readout b { font-weight: 500; color: var(--sc-ink); }
+  .index__nav { display: flex; gap: clamp(1rem, 2.4vw, 2.2rem); }
+  .index__nav a {
+    font-family: var(--sc-font-text); font-weight: 500; font-size: var(--sc-t-sm); color: var(--sc-ink-soft);
+    text-decoration: none; padding: 0.4rem 0; position: relative; transition: color 140ms var(--sc-ease-out);
+  }
+  .index__nav a::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px;
+    background: var(--sc-accent); transform: scaleX(0); transform-origin: 0 50%;
+    transition: transform 180ms var(--sc-ease-out);
+  }
+  .index__nav a:hover, .index__nav a.is-current { color: var(--sc-ink); }
+  .index__nav a.is-current::after { transform: scaleX(1); }
+  .index__cta { justify-self: end; }
+  .index__toggle { display: none; }
+
+  /* ------------------------------------------------------- hero --------- */
+  .hero { position: relative; min-height: 100svh; display: grid; align-items: end; overflow: clip; background: var(--sc-canvas); }
+  .hero__media { position: absolute; inset: 0; overflow: clip; }
+  .hero__media img { width: 100%; height: 100%; object-fit: cover; object-position: 72% 55%; transform: scale(1.06); transform-origin: 50% 60%; }
+  .hero__wash {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(100deg, color-mix(in oklab, var(--sc-canvas) 78%, transparent) 0%,
+                color-mix(in oklab, var(--sc-canvas) 40%, transparent) 38%, transparent 60%);
+  }
+  .hero__copy {
+    position: relative; z-index: 2;
+    padding: calc(var(--nav-h) + 8vh) var(--sc-gutter) clamp(3rem, 9vh, 6rem);
+    max-width: 44rem; width: 100%;
+  }
+  .hero__copy h1 { max-width: 12ch; }
+  .hero__copy .sc-lede { margin-top: var(--sc-5); max-width: 40ch; color: var(--sc-ink-soft); font-size: var(--sc-t-lg); }
+  .hero__ctas { display: flex; flex-wrap: wrap; gap: var(--sc-3); margin-top: var(--sc-6); }
+  .hero__note {
+    position: absolute; right: var(--sc-gutter); bottom: clamp(1.5rem, 4vh, 2.5rem); z-index: 2;
+    font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink-soft);
+    text-align: right; max-width: 22rem;
+  }
+
+  /* ------------------------------------------------------- plates ------- */
+  .plate { background: var(--sc-canvas); position: relative; }
+  .plate--tint { background: var(--tint); }
+  .plate__head { max-width: 46rem; }
+  .plate__head .sc-body { margin-top: var(--sc-5); font-size: var(--sc-t-lg); line-height: 1.5; }
+  .split { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(2.5rem, 6vw, 6rem); align-items: center; }
+  .split--rev { grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr); }
+  .caption { margin-top: var(--sc-3); font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .frame { background: var(--sc-surface); border: 1px solid var(--pale-line); overflow: clip; border-radius: 4px; }
+  .frame img { width: 100%; height: 100%; object-fit: cover; }
+
+  /* ------------------------------------------------------- the problem -- */
+  .problem { background: var(--sc-canvas); }
+  .problem__stage { display: grid; grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; padding: calc(var(--nav-h) + 2vh) var(--sc-gutter) 3vh; height: 100svh; }
+  .problem__copy { position: relative; min-height: 20rem; }
+  .problem__copy > div { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; }
+  .problem__copy h2 { margin-bottom: var(--sc-5); }
+  .problem__copy .sc-body { font-size: var(--sc-t-lg); line-height: 1.5; max-width: 34ch; }
+  .problem__copy .sc-lede { max-width: 30ch; }
+  .field { position: relative; width: 100%; max-width: min(46rem, calc(156svh - 24.6rem)); margin-inline: auto; }
+  .field__top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: var(--sc-4); font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .field__top b { font-weight: 500; color: var(--sc-ink); }
+  .field__top .sc-nums { font-variant-numeric: tabular-nums; }
+  .field__grid { width: 100%; height: auto; display: block; border-top: 1px solid var(--pale-line); border-bottom: 1px solid var(--pale-line); padding-block: 1.25rem; }
+  .field__grid circle { transition: fill 220ms var(--sc-ease-out), stroke 220ms var(--sc-ease-out), transform 260ms var(--sc-ease-out), opacity 220ms var(--sc-ease-out); transform-box: fill-box; transform-origin: center; }
+  .field__grid .m { fill: var(--sc-ink); stroke: var(--sc-ink); stroke-width: 1.2; opacity: 1; }
+  .field__grid .m.is-kept { fill: var(--sc-accent); stroke: var(--sc-accent); }
+  .field__grid .m.is-dead { fill: transparent; stroke: color-mix(in oklab, var(--sc-ink) 22%, transparent); transform: scale(0.55); }
+  .field__grid .m.is-aside { fill: transparent; stroke: color-mix(in oklab, var(--sc-ink) 34%, transparent); stroke-dasharray: 2.4 2.2; transform: scale(0.9); }
+  .field__grid .m.is-off { opacity: 0; transform: scale(0.3); }
+  .gates { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.75rem; margin-top: var(--sc-4); }
+  .gate { font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: color-mix(in oklab, var(--sc-ink) 42%, transparent); position: relative; padding-top: 0.7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: color 200ms var(--sc-ease-out); }
+  .gate::before { content: ""; position: absolute; left: 0; top: 0; width: 100%; height: 2px; background: var(--pale-line); }
+  .gate::after { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 100%; background: var(--sc-ink); transform: scaleX(0); transform-origin: 0 50%; transition: transform 200ms var(--sc-ease-out); }
+  .gate.is-active, .gate.is-past { color: var(--sc-ink); }
+  .gate.is-active::after, .gate.is-past::after { transform: scaleX(1); }
+  .gate--score { color: color-mix(in oklab, var(--sc-accent) 55%, transparent); }
+  .gate--score.is-active, .gate--score.is-past { color: var(--sc-accent); }
+  .gate--score.is-active::after, .gate--score.is-past::after { background: var(--sc-accent); }
+  .gate.is-hidden { opacity: 0.35; }
+  .field__foot { margin-top: var(--sc-4); font-size: var(--sc-t-xs); color: var(--sc-ink-soft); }
+
+  /* ------------------------------------------------------- pipeline ----- */
+  .pipeline { background: var(--tint); }
+  .pipeline__stage { display: flex; align-items: center; padding-block: calc(var(--nav-h) + 1vh) 2vh; height: 100svh; }
+  .rail { display: flex; align-items: stretch; gap: clamp(1.25rem, 2.2vw, 2rem); padding-inline: var(--sc-gutter); }
+  .rail__lead { flex: 0 0 auto; width: clamp(20rem, 32vw, 30rem); display: flex; flex-direction: column; justify-content: center; padding-right: clamp(1rem, 3vw, 3rem); }
+  .rail__lead .sc-body { margin-top: var(--sc-5); }
+  .step { flex: 0 0 auto; width: clamp(19rem, 26vw, 24rem); display: flex; flex-direction: column; background: var(--sc-canvas); border: 1px solid var(--pale-line); border-radius: 4px; box-shadow: var(--sc-e1); }
+  .step__media { aspect-ratio: 4 / 3; background: var(--sc-surface); border-bottom: 1px solid var(--pale-line); overflow: clip; display: grid; place-items: center; }
+  .step__media img { width: 100%; height: 100%; object-fit: cover; }
+  .step__media svg { width: 72%; height: 72%; }
+  .step__body { padding: var(--sc-5) var(--sc-5) var(--sc-6); display: flex; flex-direction: column; gap: var(--sc-3); flex: 1; }
+  .step__n { font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.08em; color: var(--sc-accent); }
+  .step__body h3 { font-family: var(--sc-font-display); font-weight: 500; font-size: var(--sc-t-xl); letter-spacing: -0.02em; line-height: 1.1; margin: 0; }
+  .step__body p { color: var(--sc-ink-soft); font-size: var(--sc-t-sm); line-height: 1.55; }
+  .step__out { margin-top: auto; padding-top: var(--sc-4); border-top: 1px solid var(--pale-line); font-size: var(--sc-t-xs); color: var(--sc-ink-soft); }
+  .step__out b { font-weight: 600; color: var(--sc-ink); }
+  .rail__close { flex: 0 0 auto; width: clamp(16rem, 24vw, 22rem); display: flex; flex-direction: column; justify-content: center; padding-left: clamp(1rem, 2vw, 2rem); }
+  .rail__close .sc-lede { font-size: var(--sc-t-lg); }
+  @media (prefers-reduced-motion: no-preference) {
+    .step { opacity: clamp(0.5, calc((var(--sc-p, 0) - var(--i) * 0.16) * 7), 1); transform: translate3d(0, calc((1 - clamp(0, calc((var(--sc-p, 0) - var(--i) * 0.16) * 7), 1)) * 14px), 0); }
+  }
+  .glyph { fill: none; stroke: var(--sc-ink); stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+  .glyph .a { stroke: var(--sc-accent); }
+  .glyph .dot { fill: var(--sc-ink); stroke: none; }
+  .glyph .dot.a { fill: var(--sc-accent); }
+  .glyph .faint { stroke: color-mix(in oklab, var(--sc-ink) 28%, transparent); }
+
+  /* ------------------------------------------------------- loop --------- */
+  .loop { position: relative; width: 100%; max-width: 34rem; aspect-ratio: 1; margin-inline: auto; }
+  .loop svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+  .loop__ring { fill: none; stroke: var(--pale-line); stroke-width: 1.4; }
+  .loop__arc { fill: none; stroke: var(--sc-accent); stroke-width: 1.6; stroke-linecap: round; }
+  .loop__tick { stroke: var(--pale-line); stroke-width: 1; }
+  .loop__tracer { fill: var(--sc-accent); }
+  .loop__tracer-halo { fill: color-mix(in oklab, var(--sc-accent) 18%, transparent); }
+  .loop__node { position: absolute; width: 9.5rem; transform: translate(-50%, -50%); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.45rem; }
+  .loop__node i { display: block; width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--sc-canvas); border: 1.5px solid var(--sc-ink); transition: background-color 200ms var(--sc-ease-out), border-color 200ms var(--sc-ease-out), transform 200ms var(--sc-ease-out); }
+  .loop__node span { font-size: var(--sc-t-xs); line-height: 1.35; color: var(--sc-ink-soft); font-weight: 500; background: var(--sc-canvas); padding: 0.15rem 0.35rem; transition: color 200ms var(--sc-ease-out); }
+  .loop__node.is-lit i { background: var(--sc-accent); border-color: var(--sc-accent); transform: scale(1.25); }
+  .loop__node.is-lit span { color: var(--sc-ink); }
+  .loop__centre { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); text-align: center; width: 12rem; }
+  .loop__centre b { display: block; font-family: var(--sc-font-display); font-weight: 500; font-size: var(--sc-t-lg); letter-spacing: -0.02em; line-height: 1.15; color: var(--sc-ink); }
+  .loop__centre small { display: block; margin-top: 0.5rem; font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink-soft); }
+  .loop-list { list-style: none; padding: 0; margin: var(--sc-6) 0 0; display: grid; gap: var(--sc-3); max-width: 34rem; }
+  .loop-list li { display: grid; grid-template-columns: 2.25rem 1fr; gap: var(--sc-3); padding-top: var(--sc-3); border-top: 1px solid var(--pale-line); font-size: var(--sc-t-sm); color: var(--sc-ink-soft); }
+  .loop-list li span:first-child { font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); color: var(--sc-accent); padding-top: 0.2rem; }
+  .loop-list li b { color: var(--sc-ink); font-weight: 600; }
+
+  /* ------------------------------------------------------- numbers ------ */
+  .numbers .plate__head { max-width: 40rem; }
+  .figures { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(2rem, 4vw, 4rem); margin-top: clamp(3rem, 7vw, 5.5rem); }
+  .figure { border-top: 1px solid var(--sc-ink); padding-top: var(--sc-5); }
+  .figure__n { font-family: var(--sc-font-display); font-weight: 500; font-size: clamp(2.8rem, 2rem + 3.6vw, 5.2rem); letter-spacing: -0.035em; line-height: 1; color: var(--sc-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .figure__n small { font-size: 0.42em; letter-spacing: -0.01em; color: var(--sc-ink-soft); font-weight: 500; margin-left: 0.15em; }
+  .figure__l { margin-top: var(--sc-4); font-weight: 600; color: var(--sc-ink); font-size: var(--sc-t-base); }
+  .figure__p { margin-top: var(--sc-2); font-size: var(--sc-t-sm); color: var(--sc-ink-soft); max-width: 30ch; }
+  .bar { margin-top: var(--sc-5); height: 4px; background: var(--pale-line); position: relative; overflow: clip; border-radius: 2px; }
+  .bar i { position: absolute; inset: 0; background: var(--sc-accent); transform-origin: 0 50%; transform: scaleX(calc(clamp(0, (var(--sc-p, 0) - 0.22) / 0.28, 1) * var(--fill))); }
+  .numbers__src { margin-top: clamp(3rem, 6vw, 4.5rem); font-size: var(--sc-t-xs); color: var(--sc-ink-soft); max-width: 60ch; }
+
+  /* ------------------------------------------------------- model -------- */
+  .model__copy { max-width: 50rem; }
+  .model__copy h2 { max-width: 16ch; }
+  .model__lede { margin-top: var(--sc-5); font-size: var(--sc-t-lg); line-height: 1.5; max-width: 44ch; }
+  .handover { margin: clamp(3rem, 6vw, 5rem) 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: clamp(2rem, 6vw, 6rem); row-gap: 0; }
+  .handover > div { display: grid; gap: var(--sc-2); padding: var(--sc-5) 0 var(--sc-6); border-top: 1px solid var(--sc-ink); }
+  .handover dt { font-family: var(--sc-font-display); font-weight: 500; font-size: var(--sc-t-xl); letter-spacing: -0.02em; line-height: 1.1; color: var(--sc-ink); }
+  .handover dd { margin: 0; color: var(--sc-ink-soft); font-size: var(--sc-t-base); max-width: 34ch; }
+  /* ------------------------------------------------------- market ------- */
+  .market__fig { font-family: var(--sc-font-display); font-weight: 500; font-size: clamp(3.4rem, 2rem + 6vw, 7.5rem); letter-spacing: -0.04em; line-height: 0.95; color: var(--sc-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .market__fig small { font-size: 0.5em; margin-left: 0.05em; }
+  .market__l { margin-top: var(--sc-4); font-weight: 600; color: var(--sc-ink); }
+  .market__p { margin-top: var(--sc-5); font-size: var(--sc-t-lg); line-height: 1.5; max-width: 36ch; }
+  .arcs { width: 100%; height: auto; display: block; }
+  .arcs .grat { fill: none; stroke: color-mix(in oklab, var(--sc-ink) 8%, transparent); stroke-width: 1; }
+  .arcs .arc { fill: none; stroke: var(--sc-accent); stroke-width: 1.2; opacity: 0.7; }
+  .arcs .city { fill: var(--sc-ink); }
+  .arcs .home { fill: var(--sc-accent); }
+  .arcs .home-halo { fill: none; stroke: var(--sc-accent); stroke-width: 1; opacity: 0.35; }
+  .arcs text { font-family: var(--sc-font-mono); font-size: 11px; letter-spacing: 0.06em; fill: var(--sc-ink-soft); text-transform: uppercase; }
+  .arcs text.hm { fill: var(--sc-ink); font-weight: 500; }
+
+  /* ------------------------------------------------------- vision ------- */
+  .vision { text-align: center; }
+  .vision .sc-wrap { max-width: 64rem; }
+  .vision h2 { font-weight: 500; }
+  .vision h2 em { font-style: normal; color: var(--sc-accent); }
+  .vision__p { margin: var(--sc-6) auto 0; max-width: 48ch; color: var(--sc-ink-soft); font-size: var(--sc-t-lg); line-height: 1.5; }
+
+
+  /* ------------------------------------------------------- close -------- */
+  .close__stage { background: linear-gradient(180deg, var(--sc-canvas) 0%, var(--tint) 55%, var(--tint-deep) 100%); display: grid; grid-template-rows: 1fr auto; padding-top: var(--nav-h); }
+  .close__bg { position: absolute; inset: -12% -6%; pointer-events: none; opacity: 0.55; }
+  .close__bg svg { width: 100%; height: 100%; }
+  .close__bg .lat { fill: none; stroke: color-mix(in oklab, var(--sc-ink) 10%, transparent); stroke-width: 1; }
+  .close__bg .atom { fill: color-mix(in oklab, var(--sc-accent) 55%, transparent); }
+  .close__inner { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding-inline: var(--sc-gutter); max-width: 60rem; margin-inline: auto; width: 100%; }
+  .close__inner h2 { max-width: 14ch; }
+  .close__inner .sc-body { margin-top: var(--sc-5); font-size: var(--sc-t-lg); max-width: 40ch; }
+  .close__ctas { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sc-5); margin-top: var(--sc-7); }
+  .foot { position: relative; z-index: 2; border-top: 1px solid var(--pale-line); padding: var(--sc-5) var(--sc-gutter); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--sc-4); font-size: var(--sc-t-xs); color: var(--sc-ink-soft); }
+  .foot__links { display: flex; gap: var(--sc-5); }
+  .foot a { color: var(--sc-ink-soft); text-decoration: none; }
+  .foot a:hover { color: var(--sc-ink); }
+  .foot__r { justify-self: end; text-align: right; }
+
+  /* ------------------------------------------------------- responsive --- */
+  @media (max-width: 1080px) {
+    .index__readout { display: none; }
+  }
+  @media (max-width: 860px) {
+    .index { grid-template-columns: auto 1fr auto; gap: var(--sc-3); }
+    .index__nav { display: none; }
+    .index__cta { grid-column: 3; }
+    .hero { align-items: start; grid-template-rows: 50svh auto; }
+    .hero__media { position: relative; inset: auto; height: 50svh; margin-top: var(--nav-h); }
+    .hero__media img { object-position: 74% 62%; transform: none; }
+    .hero__wash { display: none; }
+    .hero__copy { padding: var(--sc-6) var(--sc-gutter) var(--sc-8); }
+    .hero__copy h1 { font-size: var(--sc-t-2xl); max-width: none; }
+    .hero__note { display: none; }
+    .split, .split--rev { grid-template-columns: 1fr; gap: var(--sc-7); }
+    .problem__stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: var(--sc-4); padding-top: calc(var(--nav-h) + 1rem); align-items: start; }
+    .problem__copy { min-height: 12.5rem; }
+    .field { max-width: min(100%, calc((100svh - 30rem) * 1.64)); }
+    .problem__copy h2 { font-size: var(--sc-t-xl); margin-bottom: var(--sc-3); }
+    .problem__copy .sc-body, .problem__copy .sc-lede { font-size: var(--sc-t-base); }
+    .gates { gap: 0.35rem; }
+    .gate { font-size: 0.62rem; letter-spacing: 0.03em; }
+    .step { width: 78vw; }
+    .rail__lead { width: 82vw; }
+    .rail__close { width: 70vw; }
+    .figures { grid-template-columns: 1fr; gap: var(--sc-7); }
+    .handover { grid-template-columns: 1fr; }
+    .foot { grid-template-columns: 1fr; text-align: left; }
+    .foot__r { justify-self: start; text-align: left; }
+    .loop__node { width: 7.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero__media img { transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<span data-sc-progress></span>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<header class="index" aria-label="Site index">
+  <div style="display:flex;align-items:center;">
+    <a class="index__mark" href="#home" aria-label="Si-gul, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="6" fill="#0B1437"/><circle cx="16" cy="16" r="6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/><circle cx="16" cy="16" r="1.8" fill="#FFFFFF"/></svg>
+      Si-gul
+    </a>
+    <span class="index__readout" id="readout" aria-live="polite">Dossier · <b>Home</b></span>
+  </div>
+  <nav class="index__nav" aria-label="Sections">
+    <a href="#home" data-index="home">Home</a>
+    <a href="#approach" data-index="approach">Approach</a>
+    <a href="#pipeline" data-index="pipeline">Pipeline</a>
+    <a href="#science" data-index="science">Science</a>
+    <a href="#company" data-index="company">Company</a>
+  </nav>
+  <a class="btn btn--primary btn--sm index__cta" href="/partner">Partner with us</a>
+</header>
+
+<main>
+
+  <!-- 0 · HERO. Still on purpose: one image, one claim, two doors. -->
+  <section id="home" class="hero" data-sc-act="flow" data-index-label="Home">
+    <div class="hero__media" aria-hidden="true">
+      <img src="assets/01-hero.webp" srcset="assets/01-hero-m.webp 1100w, assets/01-hero.webp 2200w" sizes="100vw" width="2200" height="1222" alt="" data-sc-parallax="-0.9" fetchpriority="high">
+    </div>
+    <div class="hero__wash" aria-hidden="true"></div>
+    <div class="hero__copy" data-sc-in data-sc-stagger="90">
+      <h1 class="sc-display sc-display--xl">AI-native drug discovery. Built for assets.</h1>
+      <p class="sc-lede">Si-gul combines target intelligence, computational chemistry and experimental validation to create de-risked, licensable drug assets for pharma partners.</p>
+      <div class="hero__ctas">
+        <a class="btn btn--primary" href="#approach">Explore our approach</a>
+        <a class="btn btn--ghost" href="/partner">Partner with us</a>
+      </div>
+    </div>
+    <p class="hero__note">Protein structure model, ligand bound. Medicine begins as something small enough to hold.</p>
+  </section>
+
+  <!-- 1 · THE PROBLEM. Pinned. The Attrition Field is the peak and the signature move. -->
+  <section id="approach" class="problem" data-sc-act="pin" data-sc-span="3" data-index-label="Approach">
+    <div data-sc-stage class="problem__stage" id="fieldStage" data-sc-verify-state="init">
+      <div class="problem__copy">
+        <div data-sc-cue="0 0.19 0">
+          <h2 class="sc-display sc-display--lg">Conventional discovery finds out last.</h2>
+          <p class="sc-body">Targets are chosen on partial evidence. Molecules are designed against them. The answer arrives in the clinic, years and billions later.</p>
+        </div>
+        <div data-sc-cue="0.18 0.38 0.2 0.15">
+          <p class="sc-lede">Each gate removes candidates. Target selection, molecule design, validation, then the clinic, which removes almost all of them.</p>
+        </div>
+        <div data-sc-cue="0.37 0.55 0.2 0.15">
+          <p class="sc-lede">Most programs fail late, after most of the money has been spent. The failure was knowable earlier. Nobody asked.</p>
+        </div>
+        <div data-sc-cue="0.55 0.74 0.2 0.15">
+          <h2 class="sc-display sc-display--lg">Si-gul moves the judgement to the front.</h2>
+          <p class="sc-body">Targets are scored on genetic, clinical and structural evidence before any chemistry begins. Weak biology is set aside while it is still cheap to set aside.</p>
+        </div>
+        <div data-sc-cue="0.73 1 0.2 0.04">
+          <p class="sc-lede">Generate candidates only against targets that hold. Validate them in the lab. Fewer dead ends reach the clinic, and the ones that reach it are better.</p>
+        </div>
+      </div>
+
+      <div class="field" aria-label="Diagram: candidate attrition, conventional path compared with the Si-gul path">
+        <div class="field__top">
+          <span id="fieldPhase"><b>Conventional path</b></span>
+          <span><b class="sc-nums" id="fieldCount">96</b> of 96 candidates</span>
+        </div>
+        <svg class="field__grid" id="fieldSvg" viewBox="0 0 720 440" role="img" aria-hidden="true"></svg>
+        <div class="gates" id="gates">
+          <span class="gate gate--score is-hidden" data-gate="score">Scored first</span>
+          <span class="gate" data-gate="1">Targets</span>
+          <span class="gate" data-gate="2">Design</span>
+          <span class="gate" data-gate="3">Validation</span>
+          <span class="gate" data-gate="4">Clinic</span>
+        </div>
+        <p class="field__foot">Illustrative. The field shows the shape of the argument, not a measured attrition rate.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 · WHAT SI-GUL DOES. Horizontal pipeline. -->
+  <section id="pipeline" class="pipeline" data-sc-act="pan" data-sc-span="3.2" data-index-label="Pipeline">
+    <div data-sc-stage class="pipeline__stage">
+      <div class="rail" data-sc-pan="0.05" id="rail">
+        <div class="rail__lead">
+          <h2 class="sc-display sc-display--lg">From biology to a licensable asset.</h2>
+          <p class="sc-body">Four stages, each producing evidence the next one is measured against. The output is not a report. It is a program a partner can take on.</p>
+        </div>
+
+        <article class="step" style="--i:1">
+          <div class="step__media">
+            <svg viewBox="0 0 240 180" class="glyph" aria-hidden="true">
+              <path class="faint" d="M18 120 C 40 60, 70 60, 92 120 S 144 180, 166 120 S 218 60, 230 100"/>
+              <path d="M30 96 c 10 -30 22 -30 32 0 s 22 30 32 0 s 22 -30 32 0 s 22 30 32 0 s 22 -30 32 0"/>
+              <path d="M30 96 c 10 30 22 30 32 0 s 22 -30 32 0 s 22 30 32 0 s 22 -30 32 0 s 22 30 32 0"/>
+              <circle class="a" cx="126" cy="96" r="16"/>
+              <circle class="dot a" cx="126" cy="96" r="3.2"/>
+              <path class="a" d="M126 80 v-14 M126 112 v14 M110 96 h-14 M142 96 h14"/>
+            </svg>
+          </div>
+          <div class="step__body">
+            <span class="step__n">01</span>
+            <h3>Target intelligence</h3>
+            <p>Genetic association, clinical evidence, druggability, safety signal and literature strength scored together for every candidate target in an indication.</p>
+            <p class="step__out"><b>Output</b> · a ranked target with an evidence file, not a hunch.</p>
+          </div>
+        </article>
+
+        <article class="step" style="--i:2">
+          <div class="step__media">
+            <svg viewBox="0 0 240 180" class="glyph" aria-hidden="true">
+              <path d="M70 60 l 26 -15 l 26 15 v 30 l -26 15 l -26 -15 z"/>
+              <path d="M122 75 l 26 -15 l 26 15 v 30 l -26 15 l -26 -15 z"/>
+              <path d="M96 105 v 26 M70 90 l -22 13 M174 90 l 22 -13 M148 60 v -22"/>
+              <circle class="dot" cx="96" cy="131" r="3"/><circle class="dot" cx="48" cy="103" r="3"/><circle class="dot" cx="196" cy="77" r="3"/><circle class="dot a" cx="148" cy="38" r="3.4"/>
+              <path class="faint" d="M30 150 h 180"/>
+              <path class="faint" d="M40 160 h 6 M60 160 h 6 M80 160 h 6 M100 160 h 6 M120 160 h 6 M140 160 h 6 M160 160 h 6 M180 160 h 6"/>
+            </svg>
+          </div>
+          <div class="step__body">
+            <span class="step__n">02</span>
+            <h3>Generative chemistry</h3>
+            <p>Candidate molecules designed and optimised against the ranked target, filtered for potency, selectivity and developability before anything is synthesised.</p>
+            <p class="step__out"><b>Output</b> · a small, defensible series worth making.</p>
+          </div>
+        </article>
+
+        <article class="step" style="--i:3">
+          <div class="step__media">
+            <img src="assets/03-validation.webp" width="1200" height="1589" alt="A clear assay microplate on a white bench in soft daylight, a gloved hand resting at its edge.">
+          </div>
+          <div class="step__body">
+            <span class="step__n">03</span>
+            <h3>CRO and wet-lab validation</h3>
+            <p>Binding, cellular and early ADME assays run with contract research partners. Every prediction is tested, and every result is fed back into the models.</p>
+            <p class="step__out"><b>Output</b> · experimental evidence a partner's own scientists can audit.</p>
+          </div>
+        </article>
+
+        <article class="step" style="--i:4">
+          <div class="step__media">
+            <svg viewBox="0 0 240 180" class="glyph" aria-hidden="true">
+              <rect x="42" y="26" width="156" height="128" rx="3"/>
+              <path d="M96 78 l 16 -9 l 16 9 v 18 l -16 9 l -16 -9 z"/>
+              <path d="M128 87 h 18 M80 87 h 16 M112 69 v -14"/>
+              <circle class="dot a" cx="146" cy="87" r="3"/><circle class="dot" cx="80" cy="87" r="3"/><circle class="dot" cx="112" cy="55" r="3"/>
+              <path class="faint" d="M60 120 h 120 M60 132 h 88 M60 144 h 104"/>
+              <path class="a" d="M166 40 l 5 5 l 9 -10"/>
+            </svg>
+          </div>
+          <div class="step__body">
+            <span class="step__n">04</span>
+            <h3>De-risked pipeline asset</h3>
+            <p>A validated program packaged for partnering: target rationale, chemistry, data package and a development plan, ready for in-licensing or co-development.</p>
+            <p class="step__out"><b>Output</b> · an asset pharma can build on.</p>
+          </div>
+        </article>
+
+        <div class="rail__close">
+          <p class="sc-lede">Each stage is designed to end a program early if it should end. That is where the value is made.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · SCIENCE. The learning loop. -->
+  <section id="science" class="plate sc-section" data-sc-act="flow" data-index-label="Science">
+    <div class="sc-wrap split">
+      <div data-sc-in data-sc-stagger="70">
+        <h2 class="sc-display sc-display--lg">Every experiment makes the next one better.</h2>
+        <p class="sc-body" style="margin-top:var(--sc-5);font-size:var(--sc-t-lg);line-height:1.5;">Most discovery platforms predict once. Si-gul's models are retrained on the results of their own predictions, so the error in the next selection is smaller than the error in the last one.</p>
+        <ol class="loop-list">
+          <li><span>01</span><span><b>Experimental data</b> from assays, structures and the literature enters the models.</span></li>
+          <li><span>02</span><span><b>AI scoring and model refinement</b> recalibrates target and molecule scores against what was actually observed.</span></li>
+          <li><span>03</span><span><b>Better selection</b> of targets and candidates, with the failure modes of the last round priced in.</span></li>
+          <li><span>04</span><span><b>New experiments</b> designed to be maximally informative, not merely confirmatory.</span></li>
+          <li><span>05</span><span><b>Improved models</b>, and the loop closes on richer data than it opened with.</span></li>
+        </ol>
+      </div>
+      <div class="loop" id="loop" data-sc-reveal="iris" data-sc-reveal-at="0.08 0.3" aria-label="Diagram: the Si-gul AI learning loop">
+        <svg viewBox="0 0 400 400" aria-hidden="true">
+          <circle class="loop__ring" cx="200" cy="200" r="150"/>
+          <g class="loop__tick" id="loopTicks"></g>
+          <path class="loop__arc" id="loopArc" d=""/>
+          <g id="loopTracer"><circle class="loop__tracer-halo" cx="200" cy="50" r="12"/><circle class="loop__tracer" cx="200" cy="50" r="4.5"/></g>
+        </svg>
+        <div class="loop__node" style="left:50%;top:12.5%"><i></i><span>Experimental data</span></div>
+        <div class="loop__node" style="left:85.66%;top:38.4%"><i></i><span>AI scoring and model refinement</span></div>
+        <div class="loop__node" style="left:72.04%;top:80.3%"><i></i><span>Better target and molecule selection</span></div>
+        <div class="loop__node" style="left:27.96%;top:80.3%"><i></i><span>New experiments</span></div>
+        <div class="loop__node" style="left:14.34%;top:38.4%"><i></i><span>Improved models</span></div>
+        <div class="loop__centre"><b>Si-gul AI Learning Loop</b><small>Closed-loop discovery</small></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4 · WHY IT MATTERS. Three numbers, nothing decorating them. -->
+  <section class="plate plate--tint sc-section numbers" data-sc-act="flow" data-index-label="Science">
+    <div class="sc-wrap">
+      <div class="plate__head" data-sc-in data-sc-stagger="70">
+        <h2 class="sc-display sc-display--lg">Fewer dead ends. Better candidates. More valuable assets.</h2>
+        <p class="sc-body">The economics of drug discovery are set by how late failure is discovered. Moving that discovery earlier changes every number below.</p>
+      </div>
+      <div class="figures">
+        <div class="figure">
+          <div class="figure__n"><span data-sc-count="0 13" data-sc-count-at="0.22 0.5">0</span><small>%</small></div>
+          <div class="bar" aria-hidden="true"><i style="--fill:0.13"></i></div>
+          <p class="figure__l">Phase I to approval</p>
+          <p class="figure__p">Roughly one in eight programs that reach first-in-human studies becomes a medicine.</p>
+        </div>
+        <div class="figure">
+          <div class="figure__n">10<small style="margin:0 0.1em">to</small><span data-sc-count="0 15" data-sc-count-at="0.22 0.5">0</span><small>yrs</small></div>
+          <div class="bar" aria-hidden="true"><i style="--fill:1"></i></div>
+          <p class="figure__l">From target to patient</p>
+          <p class="figure__p">Long enough that the biology chosen at the start is rarely re-examined before the end.</p>
+        </div>
+        <div class="figure">
+          <div class="figure__n"><small style="margin:0 0.05em 0 0">$</small><span data-sc-count="0 2.5" data-sc-count-at="0.22 0.5">0</span><small style="margin:0 0.15em 0 0">B</small><small style="margin:0 0.1em">to</small><small style="margin:0 0.05em 0 0">$</small><span data-sc-count="0 4" data-sc-count-at="0.22 0.5">0</span><small>B</small></div>
+          <div class="bar" aria-hidden="true"><i style="--fill:0.62"></i></div>
+          <p class="figure__l">Estimated cost per approved drug</p>
+          <p class="figure__p">Including the cost of the programs that failed on the way. Most of that spend is late-stage.</p>
+        </div>
+      </div>
+      <p class="numbers__src">Figures are industry-wide estimates supplied by Si-gul for this page and should carry their published sources at launch.</p>
+    </div>
+  </section>
+
+  <!-- 5 · ASSET-FIRST MODEL. The positioning section: type only. -->
+  <section id="model" class="plate sc-section model" data-sc-act="flow" data-index-label="Approach">
+    <div class="sc-wrap">
+      <div class="model__copy" data-sc-in data-sc-stagger="70">
+        <h2 class="sc-display sc-display--lg">We don't sell software. We build assets pharma can in-license.</h2>
+        <p class="sc-body model__lede">Si-gul identifies promising biology, designs and optimises candidates, generates experimental evidence, and packages validated programs for partnering and licensing. The platform is how we work. The asset is what we hand over.</p>
+      </div>
+      <dl class="handover" data-sc-in data-sc-stagger="80">
+        <div><dt>Target rationale</dt><dd>With the evidence behind every score.</dd></div>
+        <div><dt>Lead series</dt><dd>Structure, activity and selectivity data.</dd></div>
+        <div><dt>Validation</dt><dd>Run to a pre-agreed plan a partner's scientists can audit.</dd></div>
+        <div><dt>Development plan</dt><dd>With a data room built for diligence.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <!-- 6 · MARKET. -->
+  <section id="market" class="plate plate--tint sc-section market" data-sc-act="flow" data-index-label="Company">
+    <div class="sc-wrap split--rev split">
+      <div data-sc-in data-sc-stagger="70">
+        <div class="market__fig"><small>$</small><span data-sc-count="0 137.7" data-sc-count-at="0.22 0.5">0</span><small>B</small></div>
+        <p class="market__l">Cross-border biotech licensing value, 2025</p>
+        <p class="market__p sc-body">Pharma increasingly buys its pipeline rather than growing all of it. Programs originated outside the traditional hubs, with the evidence to survive diligence, are what that market is looking for.</p>
+      </div>
+      <div>
+        <svg class="arcs" viewBox="0 0 800 440" role="img" aria-label="Diagram: partnering arcs from India to global pharma hubs" data-sc-parallax="-0.5">
+          <g class="grat">
+            <path d="M0 110 Q 400 70 800 110"/><path d="M0 220 Q 400 190 800 220"/><path d="M0 330 Q 400 300 800 330"/>
+            <path d="M120 0 Q 100 220 120 440"/><path d="M280 0 Q 260 220 280 440"/><path d="M440 0 Q 420 220 440 440"/><path d="M600 0 Q 580 220 600 440"/><path d="M760 0 Q 740 220 760 440"/>
+          </g>
+          <g class="arc">
+            <path d="M560 262 Q 350 40 110 128"/>
+            <path d="M560 262 Q 300 20 40 168"/>
+            <path d="M560 262 Q 440 60 330 108"/>
+            <path d="M560 262 Q 470 90 372 130"/>
+            <path d="M560 262 Q 660 120 740 162"/>
+            <path d="M560 262 Q 640 160 690 200"/>
+          </g>
+          <g>
+            <circle class="city" cx="110" cy="128" r="3.5"/><text x="122" y="124">Boston</text>
+            <circle class="city" cx="40" cy="168" r="3.5"/><text x="52" y="184">San Francisco</text>
+            <circle class="city" cx="330" cy="108" r="3.5"/><text x="342" y="104">London</text>
+            <circle class="city" cx="372" cy="130" r="3.5"/><text x="384" y="146">Basel</text>
+            <circle class="city" cx="740" cy="162" r="3.5"/><text x="700" y="150">Tokyo</text>
+            <circle class="city" cx="690" cy="200" r="3.5"/><text x="646" y="220">Shanghai</text>
+            <circle class="home-halo" cx="560" cy="262" r="14"/><circle class="home-halo" cx="560" cy="262" r="26"/>
+            <circle class="home" cx="560" cy="262" r="5"/><text class="hm" x="576" y="286">India · Si-gul</text>
+          </g>
+        </svg>
+        <p class="caption">Origination in India. Partnering wherever the medicine is built.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · VISION. -->
+  <section id="company" class="plate sc-section vision" data-sc-act="flow" data-index-label="Company">
+    <div class="sc-wrap">
+      <h2 class="sc-display sc-display--lg" data-sc-cue="0.14 1 0.22 0.04" data-sc-kinetic="lines">To be India's engine for licensable, AI-native drug discovery, turning <em>neglected biology</em> into assets pharma can build on.</h2>
+      <p class="vision__p" data-sc-in>A great deal of disease biology is under-studied because it was never commercially obvious. Much of it matters most in the places we come from. We think evidence, not geography, should decide what gets built.</p>
+    </div>
+  </section>
+
+
+  <!-- 9 · CLOSE. Pinned, holds. Footer lives inside the stage so the page ends here. -->
+  <section id="partner" data-sc-act="pin" data-sc-span="1.2" data-index-label="Partner">
+    <div data-sc-stage class="close__stage">
+      <div class="close__bg" aria-hidden="true" data-sc-parallax="-0.5">
+        <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+          <g class="lat">
+            <path d="M150 120 l 60 -35 l 60 35 v 70 l -60 35 l -60 -35 z"/>
+            <path d="M270 190 l 60 -35 l 60 35 v 70 l -60 35 l -60 -35 z"/>
+            <path d="M330 155 l 60 -35 l 60 35"/>
+            <path d="M210 225 v 60 M390 260 l 60 35 l 60 -35"/>
+            <path d="M900 520 l 60 -35 l 60 35 v 70 l -60 35 l -60 -35 z"/>
+            <path d="M1020 590 l 60 -35 l 60 35 v 70 l -60 35 l -60 -35 z"/>
+            <path d="M960 450 v 35 M840 555 l -60 35"/>
+            <path d="M700 90 l 40 -24 l 40 24 v 48 l -40 24 l -40 -24 z"/>
+            <path d="M780 138 l 40 24 M660 138 l -40 24 M740 66 v -30"/>
+          </g>
+          <g class="atom">
+            <circle cx="210" cy="85" r="3"/><circle cx="270" cy="120" r="3"/><circle cx="390" cy="155" r="3"/><circle cx="450" cy="295" r="3"/>
+            <circle cx="960" cy="485" r="3"/><circle cx="1080" cy="555" r="3"/><circle cx="780" cy="162" r="3"/><circle cx="740" cy="36" r="3"/>
+          </g>
+        </svg>
+      </div>
+      <div class="close__inner">
+        <h2 class="sc-display sc-display--xl" data-sc-cue="0 1 0 0">Build the next drug asset with us.</h2>
+        <p class="sc-body" data-sc-cue="0 1 0 0">If you lead search and evaluation, external innovation or early R&amp;D at a pharma or biotech, we would like to show you what we are building and hear what you need.</p>
+        <div class="close__ctas" data-sc-cue="0 1 0 0" data-sc-rise="0">
+          <a class="btn btn--primary" href="/partner" data-sc-magnet="0.22">Partner with us</a>
+        </div>
+      </div>
+      <footer class="foot">
+        <span>© 2026 Si-gul. AI-native drug discovery, built for assets.</span>
+        <nav class="foot__links" aria-label="Footer">
+          <a href="#approach">Approach</a><a href="#pipeline">Pipeline</a><a href="#science">Science</a><a href="#company">Company</a>
+        </nav>
+        <span class="foot__r"><a href="/partner">Partnering enquiries</a></span>
+      </footer>
+    </div>
+  </section>
+
+</main>
+
+<script src="scrollcraft.js"></script>
+<script>
+(function () {
+  'use strict';
+  ScrollCraft.mount(document.body);
+
+  // Progress of any act, read off the --sc-p the engine publishes. The engine
+  // stays untouched; this only listens to the inline style it writes.
+  function onProgress(el, fn) {
+    var last = null;
+    function read() {
+      var p = parseFloat(getComputedStyle(el).getPropertyValue('--sc-p')) || 0;
+      if (p !== last) { last = p; fn(p); }
+    }
+    new MutationObserver(read).observe(el, { attributes: true, attributeFilter: ['style'] });
+    read();
+  }
+  var clamp01 = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+  var seg = function (p, a, b) { return clamp01((p - a) / (b - a)); };
+
+  /* ---------------------------------------------------------------------
+     THE ATTRITION FIELD (signature move)
+     96 marks. Phase one: four gates thin the field to 2. Phase two: the same
+     field, scored first; 56 are set aside before chemistry, the 40 that hold
+     pass the same gates with far fewer losses, 12 survive to the clinic.
+     Everything is deterministic from a seeded order, so scrolling back
+     replays it exactly.
+  --------------------------------------------------------------------- */
+  (function field() {
+    var svg = document.getElementById('fieldSvg');
+    var act = document.getElementById('approach');
+    var stage = document.getElementById('fieldStage');
+    if (!svg || !act) return;
+    var COLS = 12, ROWS = 8, N = COLS * ROWS;
+    var ns = 'http://www.w3.org/2000/svg';
+    var marks = [];
+    for (var i = 0; i < N; i++) {
+      var c = document.createElementNS(ns, 'circle');
+      var col = i % COLS, row = Math.floor(i / COLS);
+      c.setAttribute('cx', 30 + col * 60);
+      c.setAttribute('cy', 30 + row * 54.3);
+      c.setAttribute('r', 7);
+      c.setAttribute('class', 'm');
+      svg.appendChild(c);
+      marks.push(c);
+    }
+    // seeded shuffle: one fixed permutation per phase
+    function perm(seed) {
+      var a = []; for (var k = 0; k < N; k++) a.push(k);
+      var s = seed;
+      for (var j = N - 1; j > 0; j--) {
+        s = (s * 1103515245 + 12345) & 0x7fffffff;
+        var r = s % (j + 1); var t = a[j]; a[j] = a[r]; a[r] = t;
+      }
+      return a;
+    }
+    var P1 = perm(7), P2 = perm(23);
+    // rank in permutation = order of loss. Conventional gates: 96→60→36→16→2.
+    var convCut = [96, 60, 36, 16, 2];
+    // Si-gul: score keeps 40 (rank 56..95 in P2 stay). Then 40→34→28→22→12.
+    var KEEP = 40;
+    var sgCut = [40, 34, 28, 22, 12];
+    var GATES1 = [[0.06, 0.17], [0.17, 0.28], [0.28, 0.39], [0.39, 0.5]];
+    var RESET = [0.56, 0.62], SCORE = [0.62, 0.70];
+    var GATES2 = [[0.70, 0.78], [0.78, 0.86], [0.86, 0.93], [0.93, 1.0]];
+    var rank1 = new Array(N), rank2 = new Array(N);
+    P1.forEach(function (m, r) { rank1[m] = r; });
+    P2.forEach(function (m, r) { rank2[m] = r; });
+    var gateEls = Array.prototype.slice.call(document.querySelectorAll('#gates .gate'));
+    var phaseEl = document.getElementById('fieldPhase');
+    var countEl = document.getElementById('fieldCount');
+    var lastSig = '';
+
+    // how far a mark's own loss has progressed inside gate g: rank window [cutTo, cutFrom)
+    function lossT(p, rank, cutFrom, cutTo, win) {
+      if (rank >= cutFrom) return 1;          // already gone earlier
+      if (rank < cutTo) return 0;             // survives this gate
+      var share = (cutFrom - 1 - rank) / Math.max(cutFrom - cutTo, 1); // 0..1, earliest loser first
+      var t = seg(p, win[0], win[1]);
+      return t > share ? 1 : 0;
+    }
+
+    onProgress(act, function (p) {
+      var phase2 = p >= RESET[0];
+      var alive = 0, aside = 0, activeGate = -1, sig;
+      if (!phase2) {
+        // conventional: count how many gates each mark has lost at
+        for (var i = 0; i < N; i++) {
+          var dead = false;
+          for (var g = 0; g < 4 && !dead; g++) {
+            if (lossT(p, rank1[i], convCut[g], convCut[g + 1], GATES1[g])) dead = true;
+          }
+          marks[i].setAttribute('class', dead ? 'm is-dead' : 'm');
+          if (!dead) alive++;
+        }
+        for (var gg = 0; gg < 4; gg++) if (p >= GATES1[gg][0]) activeGate = gg;
+        phaseEl.innerHTML = '<b>Conventional path</b>';
+        gateEls.forEach(function (el) {
+          var k = el.getAttribute('data-gate');
+          if (k === 'score') { el.classList.add('is-hidden'); el.classList.remove('is-active', 'is-past'); return; }
+          var gi = parseInt(k, 10) - 1;
+          el.classList.toggle('is-active', gi === activeGate);
+          el.classList.toggle('is-past', gi < activeGate);
+        });
+        sig = 'conv:' + activeGate + ':' + alive;
+      } else {
+        var rt = seg(p, RESET[0], RESET[1]);      // marks return in P2 order
+        var st = seg(p, SCORE[0], SCORE[1]);      // set-aside sweeps lowest scores first
+        for (var j = 0; j < N; j++) {
+          var r2 = rank2[j];
+          var back = rt >= (r2 / N);              // returned yet?
+          var cls;
+          if (!back) cls = 'm is-off';
+          else {
+            var kept = r2 >= (N - KEEP);
+            if (!kept) {
+              // set aside once the score sweep reaches this rank
+              var setAside = st > (r2 / (N - KEEP));
+              cls = setAside ? 'm is-aside' : 'm';
+              if (setAside) aside++; else alive++;
+            } else {
+              var rk = r2 - (N - KEEP);           // 0..39 among kept; lower rk = earlier loss
+              var dead2 = false;
+              for (var g2 = 0; g2 < 4 && !dead2; g2++) {
+                if (lossT(p, rk, sgCut[g2], sgCut[g2 + 1], GATES2[g2])) dead2 = true;
+              }
+              cls = dead2 ? 'm is-dead' : (st > 0 ? 'm is-kept' : 'm');
+              if (!dead2) alive++;
+            }
+          }
+          marks[j].setAttribute('class', cls);
+        }
+        var ag2 = -1;
+        for (var g3 = 0; g3 < 4; g3++) if (p >= GATES2[g3][0]) ag2 = g3;
+        var scoring = p >= SCORE[0] && p < GATES2[0][0];
+        phaseEl.innerHTML = '<b>Si-gul path</b>';
+        gateEls.forEach(function (el) {
+          var k = el.getAttribute('data-gate');
+          if (k === 'score') {
+            el.classList.toggle('is-hidden', p < SCORE[0]);
+            el.classList.toggle('is-active', scoring);
+            el.classList.toggle('is-past', p >= GATES2[0][0]);
+            return;
+          }
+          var gi = parseInt(k, 10) - 1;
+          el.classList.toggle('is-active', gi === ag2);
+          el.classList.toggle('is-past', gi < ag2);
+        });
+        sig = 'sg:' + (scoring ? 's' : ag2) + ':' + alive + ':' + aside;
+      }
+      countEl.textContent = String(alive);
+      if (sig !== lastSig) { lastSig = sig; stage.setAttribute('data-sc-verify-state', sig); }
+    });
+  })();
+
+  /* ---------------------------------------------------------------------
+     THE LOOP: a tracer runs the ring as the science section passes through
+     the viewport, lighting each node as it arrives.
+  --------------------------------------------------------------------- */
+  (function loop() {
+    var el = document.getElementById('loop');
+    var act = document.getElementById('science');
+    if (!el || !act) return;
+    var tracer = document.getElementById('loopTracer');
+    var arc = document.getElementById('loopArc');
+    var ticks = document.getElementById('loopTicks');
+    var nodes = Array.prototype.slice.call(el.querySelectorAll('.loop__node'));
+    var ns = 'http://www.w3.org/2000/svg';
+    for (var t = 0; t < 60; t++) {
+      var a = (t / 60) * Math.PI * 2 - Math.PI / 2;
+      var l = document.createElementNS(ns, 'line');
+      var r1 = 150, r2 = t % 12 === 0 ? 141 : 145;
+      l.setAttribute('x1', 200 + Math.cos(a) * r1); l.setAttribute('y1', 200 + Math.sin(a) * r1);
+      l.setAttribute('x2', 200 + Math.cos(a) * r2); l.setAttribute('y2', 200 + Math.sin(a) * r2);
+      ticks.appendChild(l);
+    }
+    function arcPath(deg) {
+      if (deg <= 0.5) return '';
+      var d = Math.min(deg, 359.9) * Math.PI / 180, R = 150;
+      var x0 = 200, y0 = 50;
+      var x1 = 200 + Math.cos(d - Math.PI / 2) * R, y1 = 200 + Math.sin(d - Math.PI / 2) * R;
+      return 'M' + x0 + ' ' + y0 + ' A' + R + ' ' + R + ' 0 ' + (deg > 180 ? 1 : 0) + ' 1 ' + x1.toFixed(2) + ' ' + y1.toFixed(2);
+    }
+    onProgress(act, function (p) {
+      var deg = seg(p, 0.22, 0.78) * 360;
+      tracer.setAttribute('transform', 'rotate(' + deg.toFixed(2) + ' 200 200)');
+      arc.setAttribute('d', arcPath(deg));
+      nodes.forEach(function (n, i) { n.classList.toggle('is-lit', deg >= i * 72 - 4); });
+    });
+  })();
+
+  /* ---------------------------------------------------------------------
+     THE INDEX READOUT: the sticky bar says where in the dossier you are.
+  --------------------------------------------------------------------- */
+  (function index() {
+    var readout = document.getElementById('readout');
+    var links = Array.prototype.slice.call(document.querySelectorAll('.index__nav a'));
+    var sections = Array.prototype.slice.call(document.querySelectorAll('[data-index-label]'));
+    if (!('IntersectionObserver' in window)) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        var label = e.target.getAttribute('data-index-label');
+        var key = label.toLowerCase();
+        if (readout) readout.innerHTML = 'Dossier · <b>' + label + '</b>';
+        links.forEach(function (a) { a.classList.toggle('is-current', a.getAttribute('data-index') === key); });
+      });
+    }, { rootMargin: '-45% 0px -50% 0px', threshold: 0 });
+    sections.forEach(function (s) { io.observe(s); });
+  })();
+})();
+</script>
+</body>
+</html>

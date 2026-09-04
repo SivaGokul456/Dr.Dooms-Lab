@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Partner with Si-gul</title>
+<meta name="description" content="Tell Si-gul about your partnering, licensing or collaboration interest. We reply within 48 hours.">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%230B1437'/><circle cx='16' cy='16' r='6' fill='none' stroke='%23FFFFFF' stroke-width='2.4'/><circle cx='16' cy='16' r='1.8' fill='%23FFFFFF'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="scrollcraft.css">
+<style>
+  :root {
+    --sc-canvas: #FBFCFE; --sc-surface: #F1F5FB; --sc-ink: #0B1437; --sc-ink-soft: #4F5B7C;
+    --sc-accent: #1B58C2; --sc-accent-ink: #FFFFFF;
+    --sc-font-display: "Instrument Sans", system-ui, sans-serif;
+    --sc-font-text: "Manrope", system-ui, sans-serif;
+    --sc-font-mono: "Geist Mono", ui-monospace, SFMono-Regular, monospace;
+    --sc-shadow-color: 222 40% 28%;
+    --sc-e1: 0 1px 2px hsl(var(--sc-shadow-color) / 0.08), 0 2px 6px -1px hsl(var(--sc-shadow-color) / 0.06);
+    --sc-e2: 0 2px 4px hsl(var(--sc-shadow-color) / 0.07), 0 10px 22px -6px hsl(var(--sc-shadow-color) / 0.12);
+    --tint: #EEF3FB; --pale-line: color-mix(in oklab, var(--sc-ink) 9%, transparent); --nav-h: 4rem;
+  }
+  .sc-grain { opacity: 0.028; }
+  .sc-display { font-weight: 500; }
+  .sc-display--lg { font-size: clamp(2.1rem, 1.4rem + 2.8vw, 3.9rem); letter-spacing: -0.028em; }
+  p { margin: 0; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.6em; min-height: 3rem; padding: 0 1.4rem; font-family: var(--sc-font-text); font-weight: 600; font-size: var(--sc-t-sm); text-decoration: none; white-space: nowrap; border-radius: 4px; border: 1px solid transparent; cursor: pointer; transition: background-color 140ms var(--sc-ease-out), border-color 140ms var(--sc-ease-out), transform 120ms var(--sc-ease-out), box-shadow 140ms var(--sc-ease-out); }
+  .btn:active { transform: translateY(1px); }
+  .btn--primary { background: var(--sc-accent); color: var(--sc-accent-ink); box-shadow: var(--sc-e1); }
+  .btn--primary:hover { background: #164BA8; box-shadow: var(--sc-e2); }
+  .btn--primary[disabled] { opacity: 0.6; cursor: progress; }
+  .btn--ghost { background: transparent; color: var(--sc-ink); border-color: var(--sc-hairline-strong); }
+  .btn--ghost:hover { border-color: var(--sc-ink); }
+  .btn--sm { min-height: 2.5rem; padding: 0 1.05rem; }
+
+  .index { position: fixed; top: 0; left: 0; right: 0; height: var(--nav-h); z-index: var(--sc-z-chrome); background: color-mix(in oklab, var(--sc-canvas) 94%, transparent); border-bottom: 1px solid var(--pale-line); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding-inline: var(--sc-gutter); }
+  .index__mark { display: inline-flex; align-items: center; gap: 0.7rem; font-family: var(--sc-font-display); font-weight: 600; font-size: 1.15rem; letter-spacing: -0.02em; color: var(--sc-ink); text-decoration: none; }
+  .index__mark svg { width: 1.35rem; height: 1.35rem; }
+  .index__readout { margin-left: 1.25rem; padding-left: 1.25rem; border-left: 1px solid var(--pale-line); font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink-soft); white-space: nowrap; }
+  .index__readout b { font-weight: 500; color: var(--sc-ink); }
+  .index__nav { display: flex; gap: clamp(1rem, 2.4vw, 2.2rem); }
+  .index__nav a { font-weight: 500; font-size: var(--sc-t-sm); color: var(--sc-ink-soft); text-decoration: none; padding: 0.4rem 0; transition: color 140ms var(--sc-ease-out); }
+  .index__nav a:hover { color: var(--sc-ink); }
+  .index__back { justify-self: end; }
+
+  main { padding-top: var(--nav-h); background: var(--sc-canvas); min-height: 100svh; }
+  .enquiry { display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); gap: clamp(3rem, 7vw, 7rem); padding-block: clamp(3.5rem, 8vw, 7rem); align-items: start; }
+  .enquiry__intro h1 { max-width: 12ch; }
+  .enquiry__intro .sc-body { margin-top: var(--sc-5); font-size: var(--sc-t-lg); line-height: 1.5; max-width: 34ch; }
+  .who { margin: clamp(2.5rem, 5vw, 4rem) 0 0; padding: 0; list-style: none; max-width: 30rem; }
+  .who li { padding: var(--sc-4) 0; border-top: 1px solid var(--pale-line); color: var(--sc-ink-soft); font-size: var(--sc-t-base); }
+  .who li:last-child { border-bottom: 1px solid var(--pale-line); }
+  .who li b { color: var(--sc-ink); font-weight: 600; }
+  .promise { margin-top: var(--sc-6); font-family: var(--sc-font-mono); font-size: var(--sc-t-xs); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sc-ink-soft); }
+
+  .form { background: var(--sc-canvas); border: 1px solid var(--pale-line); border-radius: 4px; padding: clamp(1.5rem, 3.5vw, 3rem); box-shadow: var(--sc-e1); }
+  .form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sc-5) var(--sc-5); }
+  .field { display: grid; gap: 0.45rem; min-width: 0; }
+  .field--full { grid-column: 1 / -1; }
+  .field label { font-size: var(--sc-t-sm); font-weight: 600; color: var(--sc-ink); }
+  .field label small { font-weight: 400; color: var(--sc-ink-soft); margin-left: 0.35rem; }
+  .field input, .field select, .field textarea { width: 100%; min-height: 3rem; padding: 0.7rem 0.9rem; font: inherit; font-size: var(--sc-t-base); color: var(--sc-ink); background: #fff; border: 1px solid var(--sc-hairline-strong); border-radius: 4px; transition: border-color 140ms var(--sc-ease-out), box-shadow 140ms var(--sc-ease-out); }
+  .field textarea { min-height: 8.5rem; resize: vertical; line-height: 1.5; }
+  .field select { appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' fill='none' stroke='%230B1437' stroke-width='1.5'/></svg>"); background-repeat: no-repeat; background-position: right 0.9rem center; padding-right: 2.4rem; }
+  .field input:hover, .field select:hover, .field textarea:hover { border-color: color-mix(in oklab, var(--sc-ink) 40%, transparent); }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible { outline: none; border-color: var(--sc-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--sc-accent) 18%, transparent); }
+  .field input:user-invalid, .field select:user-invalid, .field textarea:user-invalid { border-color: #B3261E; }
+  .form__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sc-4); margin-top: var(--sc-6); padding-top: var(--sc-5); border-top: 1px solid var(--pale-line); }
+  .form__foot p { font-size: var(--sc-t-xs); color: var(--sc-ink-soft); max-width: 36ch; }
+  .honey { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .form__status { margin-top: var(--sc-4); font-size: var(--sc-t-sm); color: #B3261E; }
+  .form__status:empty { display: none; }
+  .done { display: none; padding: clamp(1.5rem, 3.5vw, 3rem); border: 1px solid var(--pale-line); border-radius: 4px; background: var(--tint); }
+  .done h2 { font-family: var(--sc-font-display); font-weight: 500; font-size: var(--sc-t-xl); letter-spacing: -0.02em; margin: 0 0 var(--sc-3); }
+  .done p { color: var(--sc-ink-soft); max-width: 40ch; }
+  .done .btn { margin-top: var(--sc-5); }
+  .is-sent .form { display: none; }
+  .is-sent .done { display: block; }
+
+  .foot { border-top: 1px solid var(--pale-line); padding: var(--sc-5) var(--sc-gutter); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: var(--sc-4); font-size: var(--sc-t-xs); color: var(--sc-ink-soft); background: var(--sc-canvas); }
+  .foot__links { display: flex; gap: var(--sc-5); }
+  .foot a { color: var(--sc-ink-soft); text-decoration: none; }
+  .foot a:hover { color: var(--sc-ink); }
+
+  @media (max-width: 1080px) { .index__readout { display: none; } }
+  @media (max-width: 860px) {
+    .index { grid-template-columns: auto 1fr auto; gap: var(--sc-3); }
+    .index__nav { display: none; }
+    .index__back { grid-column: 3; }
+    .enquiry { grid-template-columns: 1fr; gap: var(--sc-7); }
+    .form__grid { grid-template-columns: 1fr; }
+    .foot { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="sc-grain" aria-hidden="true"></div>
+
+<header class="index" aria-label="Site index">
+  <div style="display:flex;align-items:center;">
+    <a class="index__mark" href="/" aria-label="Si-gul, home">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="6" fill="#0B1437"/><circle cx="16" cy="16" r="6" fill="none" stroke="#FFFFFF" stroke-width="2.4"/><circle cx="16" cy="16" r="1.8" fill="#FFFFFF"/></svg>
+      Si-gul
+    </a>
+    <span class="index__readout">Dossier · <b>Partner</b></span>
+  </div>
+  <nav class="index__nav" aria-label="Sections">
+    <a href="/#home">Home</a>
+    <a href="/#approach">Approach</a>
+    <a href="/#pipeline">Pipeline</a>
+    <a href="/#science">Science</a>
+    <a href="/#company">Company</a>
+  </nav>
+  <a class="btn btn--ghost btn--sm index__back" href="/">Back to site</a>
+</header>
+
+<main>
+  <div class="sc-wrap enquiry" id="enquiryRoot">
+    <div class="enquiry__intro">
+      <h1 class="sc-display sc-display--lg">Partner with Si-gul.</h1>
+      <p class="sc-body">Tell us who you are and what you are looking for. A founder reads every enquiry and replies personally.</p>
+      <ul class="who">
+        <li><b>Pharma and biotech</b> teams evaluating programs to in-license or co-develop.</li>
+        <li><b>Investors</b> looking at asset-first, AI-native discovery.</li>
+        <li><b>CROs and scientific partners</b> who want to run validation with us.</li>
+      </ul>
+      <p class="promise">We reply within 48 hours</p>
+    </div>
+
+    <div>
+      <!-- Delivery: FormSubmit relays each submission to the inbox in the action URL.
+           The first submission triggers a one-time activation email to that inbox;
+           until it is confirmed, nothing is delivered. After activation, FormSubmit
+           also issues a random alias endpoint that hides the address from the page
+           source; swap it into the action and the AJAX URL below. -->
+      <form class="form" id="enquiryForm" action="https://formsubmit.co/sivagokul456@gmail.com" method="POST" novalidate>
+        <input type="hidden" name="_subject" value="New partnering enquiry, Si-gul website">
+        <input type="hidden" name="_template" value="table">
+        <input type="hidden" name="_captcha" value="false">
+        <div class="honey" aria-hidden="true"><label>Leave this empty <input type="text" name="_honey" tabindex="-1" autocomplete="off"></label></div>
+
+        <div class="form__grid">
+          <div class="field">
+            <label for="f-name">Full name</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="f-email">Work email</label>
+            <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" required>
+          </div>
+          <div class="field">
+            <label for="f-org">Organisation</label>
+            <input id="f-org" name="organisation" type="text" autocomplete="organization" required>
+          </div>
+          <div class="field">
+            <label for="f-role">Role<small>optional</small></label>
+            <input id="f-role" name="role" type="text" autocomplete="organization-title">
+          </div>
+          <div class="field">
+            <label for="f-interest">Nature of interest</label>
+            <select id="f-interest" name="interest" required>
+              <option value="" selected disabled>Choose one</option>
+              <option>In-licensing a program</option>
+              <option>Co-development</option>
+              <option>Investment</option>
+              <option>CRO or scientific collaboration</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-area">Therapeutic area<small>optional</small></label>
+            <input id="f-area" name="therapeutic_area" type="text" placeholder="e.g. oncology, infectious disease">
+          </div>
+          <div class="field field--full">
+            <label for="f-msg">What are you looking for?</label>
+            <textarea id="f-msg" name="message" required></textarea>
+          </div>
+        </div>
+
+        <div class="form__foot">
+          <p>Your details are used only to respond to this enquiry. Nothing here is shared or added to a list.</p>
+          <button class="btn btn--primary" type="submit" id="enquirySubmit">Send enquiry</button>
+        </div>
+        <p class="form__status" id="enquiryStatus" role="alert"></p>
+      </form>
+
+      <div class="done" role="status">
+        <h2>Thank you. We have your enquiry.</h2>
+        <p>A founder will reply to the address you gave within 48 hours. If it is urgent, say so in a second message and we will move faster.</p>
+        <a class="btn btn--ghost" href="/">Back to site</a>
+      </div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span>© 2026 Si-gul. AI-native drug discovery, built for assets.</span>
+    <nav class="foot__links" aria-label="Footer">
+      <a href="/#approach">Approach</a><a href="/#pipeline">Pipeline</a><a href="/#science">Science</a><a href="/#company">Company</a>
+    </nav>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var form = document.getElementById('enquiryForm');
+  var root = document.getElementById('enquiryRoot');
+  var status = document.getElementById('enquiryStatus');
+  var btn = document.getElementById('enquirySubmit');
+  if (!form) return;
+  function onSubmit(e) {
+    e.preventDefault();
+    status.textContent = '';
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      status.textContent = 'Please complete the highlighted fields.';
+      return;
+    }
+    if (form.elements._honey && form.elements._honey.value) return; // bot
+    btn.disabled = true; btn.textContent = 'Sending';
+    var ajaxUrl = form.action.replace('formsubmit.co/', 'formsubmit.co/ajax/');
+    fetch(ajaxUrl, { method: 'POST', headers: { 'Accept': 'application/json' }, body: new FormData(form) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && (j.success === 'true' || j.success === true)) { root.classList.add('is-sent'); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+        else { throw new Error(j && j.message ? j.message : 'send failed'); }
+      })
+      .catch(function () {
+        // No JSON path available (blocked network, old browser): send it the plain way.
+        btn.disabled = false; btn.textContent = 'Send enquiry';
+        form.removeEventListener('submit', onSubmit);
+        HTMLFormElement.prototype.submit.call(form);
+      });
+  }
+  form.addEventListener('submit', onSubmit);
+})();
+</script>
+</body>
+</html>
